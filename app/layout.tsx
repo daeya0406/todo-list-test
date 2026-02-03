@@ -18,7 +18,7 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-[rgb(var(--color-bg-default))] text-[rgb(var(--color-text-default))]">
         <Header />
         <main className="min-h-screen p-6">
-          <div className="w-full max-w-300">{children}</div>
+          <div className="w-full max-w-300 mx-auto">{children}</div>
         </main>
       </body>
     </html>

@@ -76,7 +76,7 @@ export default function HomePage() {
       <FormProvider {...methods}>
         <form
           onSubmit={methods.handleSubmit(onSubmit)}
-          className="flex w-full gap-4 max-w-4xl mx-auto"
+          className="flex w-full gap-4 mx-auto"
         >
           <InputBox name="todo" />
           <Button

@@ -1,4 +1,4 @@
-# 📝 Todo List - Task Management Web App
+# 📝 Todo List
 
 사용자의 할 일을 효율적으로 관리하고, 상세 메모와 이미지 첨부 기능을 제공하는 인터랙티브 할 일 관리 애플리케이션입니다.
 
@@ -33,12 +33,12 @@
 
 2. **패키지 설치**
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. **개발 서버 실행**
    ```bash
-   npm run dev
+   pnpm run dev
    ```
    브라우저에서 `http://localhost:3000` 접속 후 확인 가능합니다.
 

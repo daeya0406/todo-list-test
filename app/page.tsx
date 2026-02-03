@@ -1,65 +1,167 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Image from "next/image";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { InputBox } from "@/shared/ui/InputBox";
+import { Button } from "@/shared/ui/Button";
+import { Badge } from "@/shared/ui/Badge";
+import { itemService } from "@/shared/api/itemService";
+import { TodoCard } from "@/shared/ui/TodoCard";
+
+interface TodoItem {
+  id: number;
+  name: string;
+  isCompleted: boolean;
+  memo?: string;
+  imageUrl?: string;
+}
+
+export default function HomePage() {
+  const [tasks, setTasks] = useState<TodoItem[]>([]);
+  const methods = useForm({ defaultValues: { todo: "" } });
+
+  const fetchTasks = useCallback(async () => {
+    try {
+      const data = await itemService.getList();
+      setTasks(data);
+    } catch (error) {
+      console.error("로딩 실패", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchTasks();
+  }, [fetchTasks]);
+
+  const onSubmit = async (data: { todo: string }) => {
+    if (!data.todo.trim()) return;
+    try {
+      const newItem = await itemService.create(data.todo);
+      setTasks((prev) => [...prev, newItem]);
+      methods.reset();
+    } catch (error) {
+      alert("추가 실패");
+    }
+  };
+
+  const onToggle = async (id: number, currentStatus: boolean) => {
+    setTasks((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, isCompleted: !currentStatus } : item,
+      ),
+    );
+
+    try {
+      await itemService.update(id, { isCompleted: !currentStatus });
+    } catch (error) {
+      await fetchTasks();
+      alert("변경 실패");
+    }
+  };
+
+  const todoItems = useMemo(
+    () => tasks.filter((item) => !item.isCompleted),
+    [tasks],
+  );
+  const doneItems = useMemo(
+    () => tasks.filter((item) => item.isCompleted),
+    [tasks],
+  );
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen space-y-10 p-4">
+      {/* 추가하기 */}
+      <FormProvider {...methods}>
+        <form
+          onSubmit={methods.handleSubmit(onSubmit)}
+          className="flex w-full gap-4 max-w-4xl mx-auto"
+        >
+          <InputBox name="todo" />
+          <Button
+            action="add"
+            variant="circle"
+            type="submit"
+            className="sm:hidden flex-shrink-0"
+          />
+          <Button
+            action="add"
+            type="submit"
+            className="hidden sm:flex flex-shrink-0"
+          />
+        </form>
+      </FormProvider>
+
+      {/* 리스트 */}
+      <div className="flex flex-col md:flex-row gap-6 w-full items-start max-w-7xl mx-auto">
+        {/* TODO */}
+        <div className="flex flex-col gap-4 w-full">
+          <Badge status="todo" />
+          <div className="flex flex-col gap-4">
+            {todoItems.length > 0 ? (
+              todoItems.map((item) => (
+                <TodoCard
+                  key={item.id}
+                  id={item.id}
+                  name={item.name}
+                  isCompleted={item.isCompleted}
+                  onToggle={onToggle}
+                />
+              ))
+            ) : (
+              <EmptyContent type="todo" />
+            )}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* DONE */}
+        <div className="flex flex-col gap-4 w-full">
+          <Badge status="done" />
+          <div className="flex flex-col gap-4">
+            {doneItems.length > 0 ? (
+              doneItems.map((item) => (
+                <TodoCard
+                  key={item.id}
+                  id={item.id}
+                  name={item.name}
+                  isCompleted={item.isCompleted}
+                  onToggle={onToggle}
+                />
+              ))
+            ) : (
+              <EmptyContent type="done" />
+            )}
+          </div>
         </div>
-      </main>
+      </div>
+    </main>
+  );
+}
+
+function EmptyContent({ type }: { type: "todo" | "done" }) {
+  const isTodo = type === "todo";
+  return (
+    <div className="flex flex-col items-center justify-center py-10 text-slate-400 w-full">
+      <Image
+        src={`/images/img/${type}-lg.png`}
+        width={240}
+        height={240}
+        alt="empty"
+        className="hidden sm:block"
+      />
+      <Image
+        src={`/images/img/${type}-sm.png`}
+        width={120}
+        height={120}
+        alt="empty"
+        className="block sm:hidden"
+      />
+      <p className="mt-4 text-center typo-b16 whitespace-pre-wrap">
+        {isTodo
+          ? "할 일이 없어요.\nTODO를 새롭게 추가해주세요!"
+          : "아직 다 한 일이 없어요.\n해야 할 일을 체크해보세요!"}
+      </p>
     </div>
   );
 }

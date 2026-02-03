@@ -1,26 +1,68 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* 의미 컬러 */
+  --color-bg-default: rgb(255 255 255);
+  --color-bg-muted: rgb(245 246 248);
+
+  --color-text-default: rgb(17 17 17);
+  --color-text-muted: rgb(120 120 120);
+
+  --color-brand-primary: rgb(34 93 255);
+
+  /* 커스텀 컬러 */
+  --color-slate-900: rgb(15 23 42);
+  --color-slate-800: rgb(30 41 59);
+  --color-slate-500: rgb(100 116 139);
+  --color-slate-400: rgb(148 163 184);
+  --color-slate-300: rgb(203 213 225);
+  --color-slate-200: rgb(226 232 240);
+  --color-slate-100: rgb(241 245 249);
+
+  --color-violet: rgb(124 58 237);
+  --color-violet-100: rgb(237 233 254);
+
+  --color-rose: rgb(244 63 94);
+  --color-lime: rgb(190 242 100);
+  --color-amber: rgb(146 64 14);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    @apply text-slate-900;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .typo-b20 {
+    @apply text-xl font-bold;
+  }
+  .typo-eb18 {
+    @apply text-lg font-extrabold;
+  }
+  .typo-b18 {
+    @apply text-lg font-bold;
+  }
+  .typo-b16 {
+    @apply text-base font-bold;
+  }
+  .typo-m16 {
+    @apply text-base;
+  }
+
+  .dy-solid {
+    border-radius: 24px;
+    /* 테마 변수 사용 */
+    border: 2px solid var(--color-slate-900);
+    box-shadow: 4px 4px 0 0 var(--color-slate-900);
+  }
+}
+
+@layer components {
+  .abs-center {
+    @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2;
+  }
+  .abs-x-center {
+    @apply absolute left-1/2 -translate-x-1/2;
+  }
 }

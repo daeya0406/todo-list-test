@@ -32,15 +32,21 @@ export default function ItemDetailPage() {
       const data = await itemService.getDetail(itemId);
       setTask(data);
       methods.reset({ name: data.name, memo: data.memo || "" });
-    } catch (error) {
+    } catch {
       alert("항목을 찾을 수 없습니다.");
       router.push("/");
     }
   }, [itemId, methods, router]);
 
   useEffect(() => {
-    if (itemId) fetchTaskDetail();
-  }, [itemId, fetchTaskDetail]);
+    const loadData = async () => {
+      if (itemId) {
+        await fetchTaskDetail();
+      }
+    };
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemId]);
 
   // 이미지 검증 및 핸들러
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,8 +69,8 @@ export default function ItemDetailPage() {
       setTask((prev) => (prev ? { ...prev, imageUrl: result.url } : null));
 
       alert("이미지가 업로드되었습니다.");
-    } catch (error) {
-      console.error("이미지 업로드 실패:", error);
+    } catch {
+      console.error("이미지 업로드 실패:");
       alert("이미지 업로드에 실패했습니다.");
     }
   };
@@ -79,8 +85,8 @@ export default function ItemDetailPage() {
         imageUrl: task.imageUrl,
       });
       router.push("/");
-    } catch (error) {
-      alert("수정 실패");
+    } catch {
+      console.log("수정 실패");
     }
   };
 
@@ -92,8 +98,8 @@ export default function ItemDetailPage() {
       await itemService.delete(itemId);
       alert("삭제되었습니다.");
       router.push("/"); // 삭제 후 목록으로
-    } catch (error) {
-      console.error("삭제 에러:", error);
+    } catch {
+      console.error("삭제 에러:");
       alert("삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };

@@ -25,8 +25,8 @@ export default function HomePage() {
     try {
       const data = await itemService.getList();
       setTasks(data);
-    } catch (error) {
-      console.error("로딩 실패", error);
+    } catch {
+      console.error("로딩 실패");
     }
   }, []);
 
@@ -41,7 +41,7 @@ export default function HomePage() {
       const newItem = await itemService.create(data.todo);
       setTasks((prev) => [...prev, newItem]);
       methods.reset();
-    } catch (error) {
+    } catch {
       alert("추가 실패");
     }
   };
@@ -55,7 +55,7 @@ export default function HomePage() {
 
     try {
       await itemService.update(id, { isCompleted: !currentStatus });
-    } catch (error) {
+    } catch {
       await fetchTasks();
       alert("변경 실패");
     }
